@@ -7,9 +7,10 @@ interface PostProps {
     content: string,
     date: string,
     author: string,
+    onDelete: () => void
 }
 
-export const Post = ({content, date, author}: PostProps) => {
+export const Post = ({content, date, author, onDelete}: PostProps) => {
 
     return (
         <div className={'post-container'}>
@@ -17,7 +18,13 @@ export const Post = ({content, date, author}: PostProps) => {
             {content}
             <div className={'post-footer'}>
                 <span className={'post-date'}>{date}</span>
-                <Icon icon={ic_delete} style={{color: '#28ffa2'}} className={'delete'} size={20}/>
+                <Icon
+                    icon={ic_delete}
+                    style={{color: '#ed35f6'}}
+                    className={'delete'}
+                    size={20}
+                    onClick={() => onDelete()}
+                />
             </div>
         </div>
     )

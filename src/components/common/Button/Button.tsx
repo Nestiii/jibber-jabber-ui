@@ -7,6 +7,6 @@ import loader from '../../../assets/loader.svg';
 export const NeuButton = (props: IButtonProps) =>
     <Button
         className={'button'}
-        loadingComponent={<img src={loader} className={'loader'}/>}
+        loadingComponent={<img src={loader} className={'loader'} alt={'Loading'}/>}
         {...props}
     />
