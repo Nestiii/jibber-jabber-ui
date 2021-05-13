@@ -1,0 +1,15 @@
+.input {
+  width: 300px;
+  background-color: #3e3e43;
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 10px 10px;
+  box-shadow: inset 4px 4px 7px #35353a, inset -4px -4px 7px #47474c;
+  border: 1px solid transparent;
+  color: #cfcfcf;
+
+  &:focus {
+    outline: none;
+    border: 1px solid #28ffa2;
+  }
+}

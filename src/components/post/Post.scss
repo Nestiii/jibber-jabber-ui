@@ -1,0 +1,43 @@
+.post-container {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  border-radius: 10px;
+  background-color: #3e3e43;
+  box-shadow: 4px 4px 7px #35353a, -4px -4px 7px #47474c;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  color: #cfcfcf;
+  font-family: "Trebuchet MS", sans-serif;
+  word-break: break-word;
+  margin-bottom: 20px;
+
+  .created-by {
+    margin-bottom: 5px;
+    color: #28ffa2;
+  }
+
+  .post-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 5px;
+
+    .post-date {
+      color: #28ffa2;
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .delete {
+      &:hover {
+        cursor: pointer;
+      }
+
+      &:active {
+        filter: opacity(0.5);
+      }
+    }
+  }
+}
