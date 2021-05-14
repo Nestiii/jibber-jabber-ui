@@ -20,7 +20,9 @@ const App = () => {
     const [posts, setPosts] = useState<PostProps[]>([]);
     const [author, setAuthor] = useState('');
     const [content, setContent] = useState('');
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [toDelete, setToDelete] = useState(0);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const getPosts = () => {
         axios.get(url + 'post/get-all')
@@ -37,23 +39,60 @@ const App = () => {
     const createPost = () => {
         setLoading(true)
         axios.post(url + 'post/create', {content: content, createdBy: author})
-            .then(() => getPosts())
+            .then(() => {
+                getPosts()
+                setContent('')
+                setAuthor('')
+            })
     }
 
-    const deletePost = (id: number) => {
-        axios.delete(url + 'post/delete/' + id).then(() => getPosts())
+    const deletePost = () => {
+        axios.delete(url + 'post/delete/' + toDelete).then(() => getPosts())
     }
 
     return (
         <div className={'body'}>
+            {
+                showDeleteModal &&
+                <div className={'modal-container'}>
+                    <div className={'modal'}>
+                        <div className={'modal-text'}>Are you sure you want to delete this post?</div>
+                        <div className={'modal-buttons'}>
+                            <NeuButton
+                                label={'Cancel'}
+                                // @ts-ignore
+                                onClick={() => setShowDeleteModal(false)}
+                            />
+                            <NeuButton
+                                label={'Delete'}
+                                // @ts-ignore
+                                onClick={() => {
+                                    deletePost()
+                                    setShowDeleteModal(false)
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            }
             <div className={'app-header'}>
                 Jibber Jabber
             </div>
             <div className={'app-body'}>
                 <div className={'left-panel'}>
                     <div className={'create-post'}>Create post</div>
-                    <NeuInput placeholder={'Created by'} onChange={(e) => setAuthor(e.target.value)}/>
-                    <NeuTextBox placeholder={'Write your post here'} onChange={(e) => setContent(e.target.value)}/>
+                    <NeuInput
+                        placeholder={'Created by'}
+                        onChange={(e) => setAuthor(e.target.value)}
+                        maxLength={20}
+                        value={author}
+                    />
+                    <NeuTextBox
+                        placeholder={'Write your post here'}
+                        onChange={(e) => setContent(e.target.value)}
+                        maxLength={140}
+                        value={content}
+                    />
                     <NeuButton
                         label={'Create'}
                         loading={loading}
@@ -71,7 +110,10 @@ const App = () => {
                                 content={post.content}
                                 date={new Date(post.createdTime).toDateString()}
                                 author={post.createdBy}
-                                onDelete={() => deletePost(post.id)}
+                                onDelete={() => {
+                                    setToDelete(post.id)
+                                    setShowDeleteModal(true)
+                                }}
                             />
                         )}
                     </div>
