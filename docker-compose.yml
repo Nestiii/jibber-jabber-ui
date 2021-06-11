@@ -1,0 +1,15 @@
+version: '3.7'
+
+  #to run: docker-compose up -d --build
+  #to stop: docker-compose stop
+  #from: https://mherman.org/blog/dockerizing-a-react-app/
+
+services:
+
+  jibber-jabber-ui:
+    container_name: jibber-jabber-ui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '1337:80'

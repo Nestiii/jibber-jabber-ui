@@ -38,7 +38,7 @@ const Login = () => {
                     onClick={() => history.push('/register')}
                     className={'register-link'}
                 >
-                    Register
+                    Create an account
                 </span>
             </div>
         </div>

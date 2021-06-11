@@ -38,6 +38,12 @@ const Register = () => {
                     //@ts-ignore
                     onClick={() => null}
                 />
+                <span
+                    onClick={() => history.push('/login')}
+                    className={'login-link'}
+                >
+                    Back to login
+                </span>
             </div>
         </div>
     )

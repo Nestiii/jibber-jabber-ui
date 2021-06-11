@@ -6,6 +6,7 @@ import Home from './components/home/Home';
 import Register from './components/register/Register';
 import Navbar from './components/common/Navbar/Navbar';
 import Profile from './components/profile/Profile';
+import Chat from './components/chat/Chat';
 
 const AuthRoutes = () => (
     localStorage.getItem('token') ?
@@ -13,6 +14,7 @@ const AuthRoutes = () => (
             <Switch>
                 <Route exact path={'/home'} component={Home}/>
                 <Route exact path={'/profile'} component={Profile}/>
+                <Route exact path={'/chat'} component={Chat}/>
             </Switch>
         </Navbar> :
         <Redirect exact to={'/login'}/>

@@ -3,7 +3,8 @@ import './Navbar.scss';
 import Icon from 'react-icons-kit';
 import {ic_home} from 'react-icons-kit/md/ic_home';
 import {ic_account_box} from 'react-icons-kit/md/ic_account_box';
-import {ic_exit_to_app} from 'react-icons-kit/md/ic_exit_to_app'
+import {ic_exit_to_app} from 'react-icons-kit/md/ic_exit_to_app';
+import {ic_chat} from 'react-icons-kit/md/ic_chat';
 import {useHistory} from 'react-router';
 
 const Navbar = ({children}: any) => {
@@ -22,6 +23,12 @@ const Navbar = ({children}: any) => {
             icon: <Icon icon={ic_account_box} size={30} style={{color: '#f6cc35'}}/>,
             route: '/profile',
             onClick: () => history.push('/profile')
+        },
+        {
+            label: 'Chat',
+            icon: <Icon icon={ic_chat} size={30} style={{color: '#f6cc35'}}/>,
+            route: '/chat',
+            onClick: () => history.push('/chat')
         },
         {
             label: 'Log out',
