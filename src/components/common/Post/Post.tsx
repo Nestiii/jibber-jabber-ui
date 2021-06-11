@@ -20,7 +20,7 @@ export const Post = ({content, date, author, onDelete}: PostProps) => {
                 <span className={'post-date'}>{date}</span>
                 <Icon
                     icon={ic_delete}
-                    style={{color: '#ed35f6'}}
+                    style={{color: '#f6cc35'}}
                     className={'delete'}
                     size={20}
                     onClick={() => onDelete()}

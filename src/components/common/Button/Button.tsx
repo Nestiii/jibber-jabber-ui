@@ -1,10 +1,10 @@
 import React from 'react';
 import './Button.scss';
 import {Button} from 'bisk';
-import {IButtonProps} from 'bisk/dist/types/Button';
+import {ButtonProps} from 'bisk/dist/types/Button';
 import loader from '../../../assets/loader.svg';
 
-export const NeuButton = (props: IButtonProps) =>
+export const NeuButton = (props: ButtonProps) =>
     <Button
         className={'button'}
         loadingComponent={<img src={loader} className={'loader'} alt={'Loading'}/>}
