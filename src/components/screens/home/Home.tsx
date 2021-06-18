@@ -39,6 +39,7 @@ const Home = () => {
 
     const createPost = () => {
         setLoading(true)
+        setSearchLoading(true)
         axios.post(url + 'post/create', {content: content}, getConfig())
             .then(() => {
                 getPosts()

@@ -2,6 +2,7 @@ name: Docker publish
 
 on:
   push:
+    branches: [ dev, main ]
     # Publish `v1.2.3` tags as releases.
     tags:
       - v*
@@ -10,29 +11,42 @@ env:
   IMAGE_NAME: jibber-jabber-ui
 
 jobs:
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
+
+  build:
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build
+
+  publish-dev-image:
+    needs: build
+    runs-on: ubuntu-latest
     permissions:
-      contents: read
       packages: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Push image
+      - name: Build Docker image
         run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ github.actor }}/$IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from BRANCH_NAME
@@ -42,5 +56,7 @@ jobs:
           [ "$BRANCH_NAME" == "master" ] && BRANCH_NAME=production
           echo IMAGE_ID=$IMAGE_ID
           echo BRANCH_NAME=$BRANCH_NAME
-          docker tag $IMAGE_NAME $IMAGE_ID:$BRANCH_NAME
-          docker push $IMAGE_ID:$BRANCH_NAME
+          docker build . --tag $IMAGE_ID-$BRANCH_NAME:latest
+          docker push $IMAGE_ID-$BRANCH_NAME:latest
+        env:
+          IMAGE_NAME: jibber-jabber-ui
