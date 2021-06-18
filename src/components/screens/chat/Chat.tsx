@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import './Chat.scss';
 import {withRouter} from 'react-router-dom';
-import {NeuInput} from '../common/Input/Input';
-import {NeuButton} from '../common/Button/Button';
+import {NeuInput} from '../../common/Input/Input';
+import {NeuButton} from '../../common/Button/Button';
 
 const messages = [
     {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
@@ -22,7 +22,6 @@ const messages = [
 const Chat = () => {
 
     const [searchUser, setSearchUser] = useState('')
-    const [selectedUser, setSelectedUser] = useState()
     const [message, setMessage] = useState('')
 
     return (

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './Profile.scss';
-import {NeuInput} from '../common/Input/Input';
-import {NeuButton} from '../common/Button/Button';
+import {NeuInput} from '../../common/Input/Input';
+import {NeuButton} from '../../common/Button/Button';
 import {withRouter} from 'react-router-dom';
 import {ic_account_circle} from 'react-icons-kit/md/ic_account_circle'
 import Icon from 'react-icons-kit';
@@ -41,7 +41,6 @@ const Profile = () => {
                 />
                 <NeuButton
                     label={editing ? 'Save' : 'Edit'}
-                    //@ts-ignore
                     onClick={() => editing ? handleSave() : setEditing(true)}
                 />
             </div>

@@ -1,7 +1,7 @@
 .post-container {
   display: flex;
   flex-direction: column;
-  width: 500px;
+  width: 100%;
   border-radius: 10px;
   background-color: #3e3e43;
   box-shadow: 4px 4px 7px #35353a, -4px -4px 7px #47474c;
@@ -30,13 +30,24 @@
       font-style: italic;
     }
 
-    .delete {
-      &:hover {
-        cursor: pointer;
-      }
+    .footer-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
-      &:active {
-        filter: opacity(0.5);
+      .icon {
+        color: #f6cc35;
+        margin-left: 20px;
+        margin-bottom: 5px;
+        margin-right: 5px;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+        &:active {
+          filter: opacity(0.5);
+        }
       }
     }
   }

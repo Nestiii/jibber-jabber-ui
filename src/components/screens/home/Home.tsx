@@ -1,32 +1,32 @@
 import React, {useEffect, useState} from 'react';
 import './Home.scss';
-import {NeuInput} from '../common/Input/Input';
-import {NeuTextBox} from '../common/TextBox/TextBox';
-import {NeuButton} from '../common/Button/Button';
-import {Post} from '../common/Post/Post';
+import {NeuTextBox} from '../../common/TextBox/TextBox';
+import {NeuButton} from '../../common/Button/Button';
+import {Post} from '../../common/Post/Post';
 import axios from 'axios';
-import {url} from '../../constants';
+import {getConfig, getUsername, url} from '../../../utils';
 import {withRouter} from 'react-router';
+import {NeuInput} from '../../common/Input/Input';
 
 interface PostProps {
-    createdBy: string,
+    reducedUserDto: {username: string},
     createdTime: string,
     content: string,
     id: number
 }
 
-
 const Home = () => {
 
     const [posts, setPosts] = useState<PostProps[]>([]);
-    const [author, setAuthor] = useState('');
     const [content, setContent] = useState('');
+    const [userSearch, setUserSearch] = useState('');
     const [loading, setLoading] = useState(false);
-    const [toDelete, setToDelete] = useState(0);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [toDelete, setToDelete] = useState(-1);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const getPosts = () => {
-        axios.get(url + 'post/get-all')
+        axios.get(url + 'post/get-all', getConfig())
             .then((res: { data: { posts: PostProps[] } }) => {
                 setPosts([...res.data.posts])
                 setLoading(false)
@@ -39,17 +39,23 @@ const Home = () => {
 
     const createPost = () => {
         setLoading(true)
-        axios.post(url + 'post/create', {content: content, createdBy: author})
+        axios.post(url + 'post/create', {content: content}, getConfig())
             .then(() => {
                 getPosts()
                 setContent('')
-                setAuthor('')
             })
     }
 
     const deletePost = () => {
-        axios.delete(url + 'post/delete/' + toDelete).then(() => getPosts())
+        axios.delete(url + 'post/delete/' + toDelete, getConfig())
+            .then(() => {
+                getPosts()
+                setShowDeleteModal(false)
+                setToDelete(-1)
+            })
     }
+
+    const username = getUsername()
 
     return (
         <div className={'home'}>
@@ -61,16 +67,11 @@ const Home = () => {
                         <div className={'modal-buttons'}>
                             <NeuButton
                                 label={'Cancel'}
-                                // @ts-ignore
                                 onClick={() => setShowDeleteModal(false)}
                             />
                             <NeuButton
                                 label={'Delete'}
-                                // @ts-ignore
-                                onClick={() => {
-                                    deletePost()
-                                    setShowDeleteModal(false)
-                                }}
+                                onClick={() => deletePost()}
                             />
                         </div>
                     </div>
@@ -78,12 +79,6 @@ const Home = () => {
             }
             <div className={'left-panel'}>
                 <div className={'create-post'}>Create post</div>
-                <NeuInput
-                    placeholder={'Created by'}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    maxLength={20}
-                    value={author}
-                />
                 <NeuTextBox
                     placeholder={'Write your Post here'}
                     onChange={(e) => setContent(e.target.value)}
@@ -93,8 +88,21 @@ const Home = () => {
                 <NeuButton
                     label={'Create'}
                     loading={loading}
-                    disabled={!author || !content}
+                    disabled={!content}
                     onClick={() => createPost()}
+                />
+                <div className={'create-post find-users'}>Find users</div>
+                <NeuInput
+                    placeholder={'Enter username'}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    maxLength={140}
+                    value={userSearch}
+                />
+                <NeuButton
+                    label={'Search'}
+                    loading={searchLoading}
+                    disabled={!userSearch}
+                    onClick={() => null}
                 />
             </div>
             <div className={'right-panel'}>
@@ -103,9 +111,10 @@ const Home = () => {
                     {posts.map(post =>
                         <Post
                             key={post.id}
+                            username={username}
                             content={post.content}
                             date={new Date(post.createdTime).toDateString()}
-                            author={post.createdBy}
+                            author={post.reducedUserDto.username}
                             onDelete={() => {
                                 setToDelete(post.id)
                                 setShowDeleteModal(true)

@@ -1,7 +1,7 @@
 .button {
   color: #3e3e43;
   background-color: #f6cc35;
-  font-family: "Trebuchet MS", sans-serif;
+  font-family: "Trebuchet MS", sans-serif !important;
 
   &:active {
     filter: opacity(0.5);
