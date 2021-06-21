@@ -2,13 +2,13 @@ name: Docker publish
 
 on:
   push:
-    branches: [ dev, main ]
+    branches: [dev]
     # Publish `v1.2.3` tags as releases.
     tags:
       - v*
 
 env:
-  IMAGE_NAME: jibber-jabber-ui
+  IMAGE_NAME: jibber-jabber-ui-dev
 
 jobs:
   # Push image to GitHub Packages.
