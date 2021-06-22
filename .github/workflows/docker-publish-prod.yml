@@ -8,7 +8,7 @@ on:
       - v*
 
 env:
-  IMAGE_NAME: jibber-jabber-ui-prod
+  IMAGE_NAME: jibber-jabber-ui
 
 jobs:
   # Push image to GitHub Packages.
