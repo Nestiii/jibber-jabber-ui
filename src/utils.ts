@@ -1,4 +1,4 @@
-export const url = 'http://jibber-jabber-dev.eastus.cloudapp.azure.com/api/'
+export const url = 'https://jibberjabber-dev.zapto.org/api/'
 
 export const getConfig = () => ({headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}})
 
