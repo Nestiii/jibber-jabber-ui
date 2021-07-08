@@ -42,7 +42,9 @@ const Chat = () => {
             })
     }
 
-    useEffect(() => getUsers(), [])
+    useEffect(() => {
+        getUsers()
+    }, [])
 
     const incomingMessage = (chatMessage: any) => {
         // @ts-ignore
@@ -82,6 +84,15 @@ const Chat = () => {
         }));
     };
 
+    const getMessages = (id: string) => {
+        // @ts-ignore
+        axios.get(url + 'messages/get-chat-info/' + me.id + '/' + id, getConfig())
+            .then((res) => {
+                console.log(res)
+                setMessages([...res.data.messages])
+            })
+    }
+
     return (
         <div className={'chat'}>
             <div className={'left-panel'}>
@@ -97,6 +108,7 @@ const Chat = () => {
                         users.length > 0 &&
                         users.map(user =>
                             <div className={'user'} key={user.id} onClick={() => {
+                                getMessages(user.id)
                                 setReceiver(user)
                                 if (connected) {
                                     stompClient.disconnect();
