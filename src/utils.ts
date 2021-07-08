@@ -1,4 +1,4 @@
-export const url = 'http://jibberjabber-dev.sytes.net/api/'
+export const url = 'http://jibberjabber.zapto.org/api/'
 
 export const getConfig = () => ({headers: {'Authorization': 'Bearer ' + localStorage.getItem('token')}})
 
