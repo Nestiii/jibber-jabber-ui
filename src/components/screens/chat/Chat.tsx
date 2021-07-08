@@ -45,7 +45,6 @@ const Chat = () => {
     useEffect(() => getUsers(), [])
 
     const incomingMessage = (chatMessage: any) => {
-        console.log('prev: ', messages)
         // @ts-ignore
         if (JSON.parse(chatMessage.body).sentBy === receiver?.id) {
             setMessages([...messages, {
@@ -54,7 +53,6 @@ const Chat = () => {
                 timestamp: Date.now()
             }]);
         }
-        console.log('next: ', messages)
     }
 
     const connect = (username: string, incomingMessage: any) => {
@@ -84,19 +82,6 @@ const Chat = () => {
         }));
     };
 
-    useEffect(() => {
-        if (receiver?.id) {
-            // @ts-ignore
-            connect(me?.id, incomingMessage);
-        }
-        return () => {
-            if (connected) {
-                stompClient.disconnect();
-                setConnected(false);
-            }
-        }
-    },[receiver]);
-
     return (
         <div className={'chat'}>
             <div className={'left-panel'}>
@@ -111,7 +96,15 @@ const Chat = () => {
                     {
                         users.length > 0 &&
                         users.map(user =>
-                            <div className={'user'} key={user.id} onClick={() => setReceiver(user)}>
+                            <div className={'user'} key={user.id} onClick={() => {
+                                setReceiver(user)
+                                if (connected) {
+                                    stompClient.disconnect();
+                                    setConnected(false);
+                                }
+                                //@ts-ignore
+                                connect(me?.id, incomingMessage);
+                            }}>
                                 <div className={'user-info'}>
                                         <span className={'username'}>
                                             {user.username}
