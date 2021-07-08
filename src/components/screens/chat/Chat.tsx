@@ -42,9 +42,7 @@ const Chat = () => {
             })
     }
 
-    useEffect(() => {
-        getUsers()
-    }, [])
+    useEffect(() => getUsers(), [])
 
     const incomingMessage = (chatMessage: any) => {
         // @ts-ignore
@@ -84,16 +82,18 @@ const Chat = () => {
         }));
     };
 
-/*
-    const getMessages = (id: string) => {
-        // @ts-ignore
-        axios.get(url + 'messages/get-chat-info/' + me.id + '/' + id, getConfig())
-            .then((res) => {
-                console.log(res)
-                setMessages([...res.data.messages])
-            })
-    }
-*/
+    useEffect(() => {
+        if (receiver?.id) {
+            // @ts-ignore
+            connect(me?.id, incomingMessage);
+        }
+        return () => {
+            if (connected) {
+                stompClient.disconnect();
+                setConnected(false);
+            }
+        }
+    },[receiver]);
 
     return (
         <div className={'chat'}>
@@ -109,15 +109,7 @@ const Chat = () => {
                     {
                         users.length > 0 &&
                         users.map(user =>
-                            <div className={'user'} key={user.id} onClick={() => {
-                                setReceiver(user)
-                                if (connected) {
-                                    stompClient.disconnect();
-                                    setConnected(false);
-                                }
-                                //@ts-ignore
-                                connect(me?.id, incomingMessage);
-                            }}>
+                            <div className={'user'} key={user.id} onClick={() => setReceiver(user)}>
                                 <div className={'user-info'}>
                                         <span className={'username'}>
                                             {user.username}
@@ -137,8 +129,8 @@ const Chat = () => {
                             <div className={'chat-username'}>{receiver?.username}</div>
                             <div className={'messages-container'}>
                                 {
-                                    messages.map((message, index) => (
-                                        <div key={index} className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
+                                    messages.map((message) => (
+                                        <div className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
                                             <div className={'message ' + (message.author.id === receiver.id ? 'left' : 'right')}>
                                                 <span>{message.text}</span>
                                                 <span className={'message-date'}>{(new Date(message.timestamp)).toLocaleString()}</span>
