@@ -75,7 +75,7 @@ const Chat = () => {
             timestamp: Date.now()
         }]);
         // @ts-ignore
-        stompClient.send(`/chat/${user.id}/${me?.id}`, {}, JSON.stringify({
+        stompClient.send(`/chat/${receiver.id}/${me?.id}`, {}, JSON.stringify({
             // @ts-ignore
             'sender': me?.id,
             'content': message
