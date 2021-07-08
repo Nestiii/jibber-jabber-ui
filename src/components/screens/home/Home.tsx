@@ -5,23 +5,37 @@ import {NeuButton} from '../../common/Button/Button';
 import {Post} from '../../common/Post/Post';
 import axios from 'axios';
 import {getConfig, getUsername, url} from '../../../utils';
-import {withRouter} from 'react-router';
+import {useHistory, withRouter} from 'react-router';
 import {NeuInput} from '../../common/Input/Input';
 
 interface PostProps {
-    reducedUserDto: {username: string},
+    reducedUserDto: { username: string, id: string },
     createdTime: string,
     content: string,
-    id: number
+    id: number,
+    likes: number,
+    dislikes: number
+}
+
+interface UserProps {
+    email: string,
+    firstName: string,
+    followersCount: number,
+    followingCount: number,
+    id: string,
+    lastName: string,
+    username: string,
+    following: boolean,
 }
 
 const Home = () => {
 
+    const history = useHistory()
     const [posts, setPosts] = useState<PostProps[]>([]);
+    const [users, setUsers] = useState<UserProps[]>([]);
     const [content, setContent] = useState('');
     const [userSearch, setUserSearch] = useState('');
     const [loading, setLoading] = useState(false);
-    const [searchLoading, setSearchLoading] = useState(false);
     const [toDelete, setToDelete] = useState(-1);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -33,13 +47,20 @@ const Home = () => {
             })
     }
 
+    const getUsers = () => {
+        axios.get(url + 'users/get-users', getConfig())
+            .then((res: { data: { users: UserProps[] } }) => {
+                setUsers([...res.data.users])
+            })
+    }
+
     useEffect(() => {
+        getUsers()
         getPosts()
     }, [])
 
     const createPost = () => {
         setLoading(true)
-        setSearchLoading(true)
         axios.post(url + 'post/create', {content: content}, getConfig())
             .then(() => {
                 getPosts()
@@ -56,7 +77,31 @@ const Home = () => {
             })
     }
 
-    const username = getUsername()
+    const follow = (username: string) => {
+        axios.post(url + 'users/follow/' + username, {}, getConfig())
+            .then(() => {
+                getPosts()
+                getUsers()
+            })
+    }
+
+    const unfollow = (username: string) => {
+        axios.post(url + 'users/unfollow/' + username, {}, getConfig())
+            .then(() => {
+                getPosts()
+                getUsers()
+            })
+    }
+
+    const filerUsers = () =>
+        users.filter(user => user.username.toLowerCase().includes(userSearch.toLowerCase()) && user.username !== getUsername())
+
+    const sortPosts = () =>
+        posts.sort((a, b) => {
+            if (new Date(a.createdTime) > new Date(b.createdTime)) return -1;
+            if (new Date(a.createdTime) < new Date(b.createdTime)) return 1;
+            return 0
+        })
 
     return (
         <div className={'home'}>
@@ -99,27 +144,46 @@ const Home = () => {
                     maxLength={140}
                     value={userSearch}
                 />
-                <NeuButton
-                    label={'Search'}
-                    loading={searchLoading}
-                    disabled={!userSearch}
-                    onClick={() => null}
-                />
+                <div className={'users-container'}>
+                    {
+                        users.length > 0 &&
+                            filerUsers().map(user =>
+                                <div className={'user'} key={user.id}>
+                                    <div className={'user-info'}>
+                                        <span
+                                            onClick={() => history.push('profile?userId=' + user.id)}
+                                            className={'username'}
+                                        >
+                                            {user.username}
+                                        </span>
+                                        <span className={'full-name'}>{user.firstName + ' ' + user.lastName}</span>
+                                    </div>
+                                    <div className={'follow'} onClick={() => user.following ? unfollow(user.username) : follow(user.username)}>
+                                        {user.following ? 'Unfollow' : 'Follow'}
+                                    </div>
+                                </div>
+                            )
+                    }
+                </div>
             </div>
             <div className={'right-panel'}>
                 <div className={'latest-posts'}>Latest posts</div>
                 <div className={'posts-container'}>
-                    {posts.map(post =>
+                    {sortPosts().map(post =>
                         <Post
                             key={post.id}
-                            username={username}
                             content={post.content}
-                            date={new Date(post.createdTime).toDateString()}
+                            date={new Date(post.createdTime).toLocaleString()}
                             author={post.reducedUserDto.username}
+                            authorId={post.reducedUserDto.id}
                             onDelete={() => {
                                 setToDelete(post.id)
                                 setShowDeleteModal(true)
                             }}
+                            id={post.id}
+                            dislikes={post.dislikes}
+                            likes={post.likes}
+                            onLikeAction={() => getPosts()}
                         />
                     )}
                 </div>

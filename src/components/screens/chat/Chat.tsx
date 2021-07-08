@@ -1,28 +1,97 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './Chat.scss';
 import {withRouter} from 'react-router-dom';
 import {NeuInput} from '../../common/Input/Input';
 import {NeuButton} from '../../common/Button/Button';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import axios from 'axios';
+import {getConfig, getUsername, url} from '../../../utils';
 
-const messages = [
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-]
+interface UserProps {
+    email: string,
+    firstName: string,
+    followersCount: number,
+    followingCount: number,
+    id: string,
+    lastName: string,
+    username: string,
+    following: boolean,
+}
+
+let stompClient: any;
 
 const Chat = () => {
 
-    const [searchUser, setSearchUser] = useState('')
-    const [message, setMessage] = useState('')
+    const [me, setMe] = useState();
+    const [receiver, setReceiver] = useState<UserProps>();
+    const [searchUser, setSearchUser] = useState('');
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState<any[]>([]);
+    const [connected, setConnected] = useState(false);
+    const [users, setUsers] = useState<UserProps[]>([]);
+
+    const getUsers = () => {
+        axios.get(url + 'users/get-users', getConfig())
+            .then((res: { data: { users: UserProps[] } }) => {
+                setUsers([...res.data.users])
+            })
+        axios.get(url + 'users/by-username/' + getUsername(), getConfig())
+            .then((res) => {
+                setMe({...res.data})
+            })
+    }
+
+    useEffect(() => {
+        getUsers()
+    }, [])
+
+    const incomingMessage = (chatMessage: any) => {
+        // @ts-ignore
+        if (JSON.parse(chatMessage.body).sentBy === receiver?.id) {
+            setMessages([...messages, {
+                author: receiver,
+                text: JSON.parse(chatMessage.body).content,
+                timestamp: Date.now()
+            }]);
+        }
+    }
+
+    const connect = (username: string, incomingMessage: any) => {
+        let socket = new SockJS('/api/messages/chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, (frame: any) => {
+            console.log('Connected: ' + frame);
+            setConnected(true);
+            // @ts-ignore
+            stompClient.subscribe('/topic/messages/' + me?.id, (chatMessage: any) => {
+                incomingMessage(chatMessage);
+            });
+        });
+    }
+
+    const sendNewMessage = (message: string) => {
+        setMessages([...messages, {
+            author: me,
+            text: message,
+            timestamp: Date.now()
+        }]);
+        // @ts-ignore
+        stompClient.send(`/chat/${receiver.id}/${me?.id}`, {}, JSON.stringify({
+            // @ts-ignore
+            'sentBy': me?.id,
+            'content': message
+        }));
+    };
+
+    const getMessages = (id: string) => {
+        // @ts-ignore
+        axios.get(url + 'messages/get-chat-info/' + me.id + '/' + id, getConfig())
+            .then((res) => {
+                console.log(res)
+                setMessages([...res.data.messages])
+            })
+    }
 
     return (
         <div className={'chat'}>
@@ -34,31 +103,69 @@ const Chat = () => {
                     maxLength={20}
                     value={searchUser}
                 />
-                <NeuButton onClick={() => null} label={'Search'} />
+                <div className={'users-container'}>
+                    {
+                        users.length > 0 &&
+                        users.map(user =>
+                            <div className={'user'} key={user.id} onClick={() => {
+                                getMessages(user.id)
+                                setReceiver(user)
+                                if (connected) {
+                                    stompClient.disconnect();
+                                    setConnected(false);
+                                }
+                                //@ts-ignore
+                                connect(me?.id, incomingMessage);
+                            }}>
+                                <div className={'user-info'}>
+                                        <span className={'username'}>
+                                            {user.username}
+                                        </span>
+                                    <span className={'full-name'}>{user.firstName + ' ' + user.lastName}</span>
+                                </div>
+                            </div>
+                        )
+                    }
+                </div>
             </div>
             <div className={'chat-panel'}>
                 <div className={'chat-title'}>Chat</div>
-                <div className={'chat-username'}>Elon Musk</div>
-                <div className={'messages-container'}>
-                    {
-                        messages.map((message, index) => (
-                            <div key={index} className={'message-wrapper ' + (index%2 === 0 ? 'wrapper-left' : 'wrapper-right')}>
-                                <div className={'message ' + (index%2 === 0 ? 'left' : 'right')}>
-                                    <span>{message.message}</span>
-                                    <span>{(new Date(message.time)).toLocaleString()}</span>
-                                </div>
+                {
+                    receiver ?
+                        <>
+                            <div className={'chat-username'}>{receiver?.username}</div>
+                            <div className={'messages-container'}>
+                                {
+                                    messages.map((message) => (
+                                        <div className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
+                                            <div className={'message ' + (message.author.id === receiver.id ? 'left' : 'right')}>
+                                                <span>{message.text}</span>
+                                                <span className={'message-date'}>{(new Date(message.timestamp)).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
                             </div>
-                        ))
-                    }
-                </div>
-                <div className={'messaging-container'}>
-                    <NeuInput
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder={'Write your message'}
-                    />
-                    <NeuButton onClick={() => null} label={'Send'}/>
-                </div>
+                            <div className={'messaging-container'}>
+                                <NeuInput
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    placeholder={'Write your message'}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            sendNewMessage(message);
+                                            setMessage('');
+                                        }
+                                    }}
+                                />
+                                <NeuButton onClick={() => {
+                                    sendNewMessage(message);
+                                    setMessage('');
+                                }} label={'Send'}/>
+                            </div>
+                        </> :
+                        <div className={'select-user'}>Select an user to start chatting</div>
+                }
             </div>
         </div>
     )
