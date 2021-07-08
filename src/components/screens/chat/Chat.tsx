@@ -31,13 +31,13 @@ const Chat = () => {
     }
 
     const connect = (username: string, incomingMessage: any) => {
-        let socket = new SockJS('messages/chat');
+        let socket = new SockJS('/api/messages/chat');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, (frame: any) => {
             console.log('Connected: ' + frame);
             setConnected(true);
             // @ts-ignore
-            stompClient.subscribe('/topic/messages/' + me?.id, (chatMessage: any) => {
+            stompClient.subscribe('/api/topic/messages/' + me?.id, (chatMessage: any) => {
                 incomingMessage(chatMessage);
             });
         });
@@ -50,7 +50,7 @@ const Chat = () => {
             timestamp: Date.now()
         }]);
         // @ts-ignore
-        stompClient.send(`/chat/${user.id}/${me?.id}`, {}, JSON.stringify({
+        stompClient.send(`/api/chat/${user.id}/${me?.id}`, {}, JSON.stringify({
             // @ts-ignore
             'sender': me?.id,
             'content': message
