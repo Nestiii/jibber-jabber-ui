@@ -124,6 +124,7 @@
         width: 100%;
         display: flex;
         flex-direction: row;
+        margin-bottom: 10px;
 
         .message {
           max-width: 300px;
@@ -135,6 +136,11 @@
           display: flex;
           flex-direction: column;
           font-family: "Trebuchet MS", sans-serif;
+
+          .message-date {
+            font-size: 12px;
+            font-style: italic;
+          }
         }
 
         .left {

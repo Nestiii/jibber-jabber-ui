@@ -77,7 +77,7 @@ const Chat = () => {
         // @ts-ignore
         stompClient.send(`/chat/${receiver.id}/${me?.id}`, {}, JSON.stringify({
             // @ts-ignore
-            'sender': me?.id,
+            'sentBy': me?.id,
             'content': message
         }));
     };
@@ -130,10 +130,10 @@ const Chat = () => {
                             <div className={'messages-container'}>
                                 {
                                     messages.map((message, index) => (
-                                        <div key={index} className={'message-wrapper ' + (index%2 === 0 ? 'wrapper-left' : 'wrapper-right')}>
-                                            <div className={'message ' + (index%2 === 0 ? 'left' : 'right')}>
+                                        <div key={index} className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
+                                            <div className={'message ' + (message.author.id === receiver.id ? 'left' : 'right')}>
                                                 <span>{message.text}</span>
-                                                <span>{(new Date(message.timestamp)).toLocaleString()}</span>
+                                                <span className={'message-date'}>{(new Date(message.timestamp)).toLocaleString()}</span>
                                             </div>
                                         </div>
                                     ))
@@ -144,6 +144,12 @@ const Chat = () => {
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder={'Write your message'}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            sendNewMessage(message);
+                                            setMessage('');
+                                        }
+                                    }}
                                 />
                                 <NeuButton onClick={() => {
                                     sendNewMessage(message);
