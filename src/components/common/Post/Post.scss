@@ -17,6 +17,11 @@
     color: #f6cc35;
   }
 
+  .created-by:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   .post-footer {
     display: flex;
     flex-direction: row;

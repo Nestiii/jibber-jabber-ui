@@ -1,28 +1,76 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './Chat.scss';
 import {withRouter} from 'react-router-dom';
 import {NeuInput} from '../../common/Input/Input';
 import {NeuButton} from '../../common/Button/Button';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import axios from 'axios';
+import {getConfig, getUsername, url} from '../../../utils';
 
-const messages = [
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-    {message: 'asdasd a sd as d asd asdasd asdas dasd asd', time: (new Date()).toString()},
-]
+let stompClient: any;
 
 const Chat = () => {
 
-    const [searchUser, setSearchUser] = useState('')
-    const [message, setMessage] = useState('')
+    const [me, setMe] = useState();
+    const [receiver, setReceiver] = useState();
+    const [searchUser, setSearchUser] = useState('');
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState<any[]>([]);
+    const [connected, setConnected] = useState(false);
+
+    const incomingMessage = (chatMessage: any) => {
+        // @ts-ignore
+        if (JSON.parse(chatMessage.body).sender === receiver?.id) {
+            setMessages([...messages, {
+                author: receiver,
+                text: JSON.parse(chatMessage.body).content,
+                timestamp: Date.now()
+            }]);
+        }
+    }
+
+    const connect = (username: string, incomingMessage: any) => {
+        let socket = new SockJS('messages/chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, (frame: any) => {
+            console.log('Connected: ' + frame);
+            setConnected(true);
+            // @ts-ignore
+            stompClient.subscribe('/topic/messages/' + me?.id, (chatMessage: any) => {
+                incomingMessage(chatMessage);
+            });
+        });
+    }
+
+    const sendNewMessage = (message: string) => {
+        setMessages([...messages, {
+            author: me,
+            text: message,
+            timestamp: Date.now()
+        }]);
+        // @ts-ignore
+        stompClient.send(`/chat/${user.id}/${me?.id}`, {}, JSON.stringify({
+            // @ts-ignore
+            'sender': me?.id,
+            'content': message
+        }));
+    };
+
+    useEffect(() => {
+        axios.get(url + 'users/by-username/' + getUsername(), getConfig())
+            .then((res) => {
+                setMe({...res.data})
+                connect(res.data.id, incomingMessage);
+            })
+
+        return () => {
+            if (connected) {
+                stompClient.disconnect();
+                setConnected(false);
+            }
+        }
+    },[]);
 
     return (
         <div className={'chat'}>
@@ -57,7 +105,10 @@ const Chat = () => {
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder={'Write your message'}
                     />
-                    <NeuButton onClick={() => null} label={'Send'}/>
+                    <NeuButton onClick={() => {
+                        sendNewMessage(message);
+                        setMessage('');
+                    }} label={'Send'}/>
                 </div>
             </div>
         </div>

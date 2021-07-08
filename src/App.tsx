@@ -12,9 +12,9 @@ const AuthRoutes = () => (
     localStorage.getItem('token') ?
         <Navbar>
             <Switch>
-                <Route exact path={'/home'} component={Home}/>
-                <Route exact path={'/profile'} component={Profile}/>
-                <Route exact path={'/chat'} component={Chat}/>
+                <Route path={'/home'} component={Home}/>
+                <Route path={'/profile'} component={Profile}/>
+                <Route path={'/chat'} component={Chat}/>
             </Switch>
         </Navbar> :
         <Redirect exact to={'/login'}/>
@@ -25,8 +25,8 @@ const App = () => {
     return (
         <div className={'body'}>
             <Switch>
-                <Route exact path={'/login'} component={Login}/>
-                <Route exact path={'/register'} component={Register}/>
+                <Route path={'/login'} component={Login}/>
+                <Route path={'/register'} component={Register}/>
                 <AuthRoutes />
             </Switch>
         </div>

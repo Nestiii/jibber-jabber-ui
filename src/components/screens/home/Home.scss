@@ -77,6 +77,63 @@
     .find-users {
       margin-top: 20px;
     }
+
+    .users-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+
+      .user {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        font-family: "Trebuchet MS", sans-serif;
+        background-color: #f6cc35;
+        padding: 5px 10px 5px 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        box-sizing: border-box;
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          color: #3e3e43;
+
+          .username {
+            font-weight: bold;
+            font-size: 20px;
+          }
+
+          .username:hover {
+            cursor: pointer;
+            text-decoration: underline;
+          }
+
+          .full-name {
+            font-size: 14px;
+            font-style: italic;
+          }
+        }
+
+        .follow {
+          background-color: #3e3e43;
+          padding: 5px;
+          border-radius: 10px;
+          font-size: 12px;
+          color: #f6cc35;
+          font-weight: bold;
+        }
+
+        .follow:hover {
+          cursor: pointer;
+          filter: opacity(0.7);
+        }
+      }
+    }
   }
 
   .right-panel {
