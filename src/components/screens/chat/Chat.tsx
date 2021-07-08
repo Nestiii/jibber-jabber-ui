@@ -84,6 +84,7 @@ const Chat = () => {
         }));
     };
 
+/*
     const getMessages = (id: string) => {
         // @ts-ignore
         axios.get(url + 'messages/get-chat-info/' + me.id + '/' + id, getConfig())
@@ -92,6 +93,7 @@ const Chat = () => {
                 setMessages([...res.data.messages])
             })
     }
+*/
 
     return (
         <div className={'chat'}>
@@ -108,7 +110,6 @@ const Chat = () => {
                         users.length > 0 &&
                         users.map(user =>
                             <div className={'user'} key={user.id} onClick={() => {
-                                getMessages(user.id)
                                 setReceiver(user)
                                 if (connected) {
                                     stompClient.disconnect();
