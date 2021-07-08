@@ -132,8 +132,8 @@ const Chat = () => {
                                     messages.map((message, index) => (
                                         <div key={index} className={'message-wrapper ' + (index%2 === 0 ? 'wrapper-left' : 'wrapper-right')}>
                                             <div className={'message ' + (index%2 === 0 ? 'left' : 'right')}>
-                                                <span>{message.message}</span>
-                                                <span>{(new Date(message.time)).toLocaleString()}</span>
+                                                <span>{message.text}</span>
+                                                <span>{(new Date(message.timestamp)).toLocaleString()}</span>
                                             </div>
                                         </div>
                                     ))
