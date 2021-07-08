@@ -45,7 +45,7 @@ const Chat = () => {
     useEffect(() => getUsers(), [])
 
     const incomingMessage = (chatMessage: any) => {
-
+        console.log('prev: ', messages)
         // @ts-ignore
         if (JSON.parse(chatMessage.body).sentBy === receiver?.id) {
             setMessages([...messages, {
@@ -54,7 +54,7 @@ const Chat = () => {
                 timestamp: Date.now()
             }]);
         }
-
+        console.log('next: ', messages)
     }
 
     const connect = (username: string, incomingMessage: any) => {
