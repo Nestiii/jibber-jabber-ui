@@ -46,7 +46,7 @@ const Chat = () => {
 
     const incomingMessage = (chatMessage: any) => {
         // @ts-ignore
-        if (JSON.parse(chatMessage.body).sender === receiver?.id) {
+        if (JSON.parse(chatMessage.body).sentBy === receiver?.id) {
             setMessages([...messages, {
                 author: receiver,
                 text: JSON.parse(chatMessage.body).content,
