@@ -45,6 +45,7 @@ const Chat = () => {
     useEffect(() => getUsers(), [])
 
     const incomingMessage = (chatMessage: any) => {
+
         // @ts-ignore
         if (JSON.parse(chatMessage.body).sentBy === receiver?.id) {
             setMessages([...messages, {
@@ -53,6 +54,7 @@ const Chat = () => {
                 timestamp: Date.now()
             }]);
         }
+
     }
 
     const connect = (username: string, incomingMessage: any) => {
@@ -129,8 +131,8 @@ const Chat = () => {
                             <div className={'chat-username'}>{receiver?.username}</div>
                             <div className={'messages-container'}>
                                 {
-                                    messages.map((message, index) => (
-                                        <div key={index} className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
+                                    messages.map((message) => (
+                                        <div className={'message-wrapper ' + (message.author.id === receiver.id ? 'wrapper-left' : 'wrapper-right')}>
                                             <div className={'message ' + (message.author.id === receiver.id ? 'left' : 'right')}>
                                                 <span>{message.text}</span>
                                                 <span className={'message-date'}>{(new Date(message.timestamp)).toLocaleString()}</span>
